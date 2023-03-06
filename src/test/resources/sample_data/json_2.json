@@ -1,0 +1,24 @@
+[{
+	"name": "masthan",
+	"id": "567",
+	"email":"anthati@gmail.com",
+	"dep": "police", 
+	"age":25,
+	"city": "thimsmayagunta"
+},
+{
+	"name": "raghu",
+	"id": "568",
+	"email":"raghu@gmail.com",
+	"dep": "student", 
+	"age":50,
+	"city": "vampalli"
+},
+{
+	"name": "soni",
+	"id": "569",
+	"email":"soni@gmail.com",
+	"dep": "teacher", 
+	"age":40,
+	"city": "venkatagiri"
+}]

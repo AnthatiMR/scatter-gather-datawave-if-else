@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a2725696-d69b-4390-bf75-cf485f1fde38" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="data-waveFlow" doc:id="8e1e0d50-b2c6-4480-9e7b-76b1602d38c0" >
+		<http:listener doc:name="Listener" doc:id="e7195b1b-c0c2-465b-9b5a-8c40971c2995" config-ref="HTTP_Listener_config" path="/data"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="0fbfb122-5d64-4f39-8d67-00123a0a4f26" >
+			<route >
+				<ee:transform doc:name="Transform Message" doc:id="fe31a59c-7115-4913-a630-12cca9c453b3">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	// this opareter work on if and else statement
+	
+	/* key: if (payload.name == "masthan" and payload.id > 4000) true
+	     else if(payload.city == "thimmayagunta" or payload.dep == "police")payload.name
+	     else {
+	    Alert: "please check the payload try again"}*/
+	    
+	    // this time we will work on bolean & and opareters
+	 
+	 /*payload: if(payload.age >80 and payload.id < 600)true
+	          else
+	          "false"*/
+	          
+	  /*payload: if(payload.age >80 or payload.id < 600)true 
+	          else if(payload.age < 60)true
+	          
+	          else
+	          "please check the value"*/
+	          
+	   // now this time we will work on another opareters
+	  
+	 name:if(payload.name == "masthan") true
+	       else
+	       "invalid"                 
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</route>
+			<route >
+				<ee:transform doc:name="Transform Message" doc:id="20083970-2077-40d0-bae1-951a425329b5">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+%dw 2.0
+output application/json
+
+fun moduleAgeID(name, id, email, dep, age, city) = {
+	kakku: if (id > 550 and age > 60) email
+	       else if(id < 500 and age <50) name
+           else
+	          city ++"," ++ dep
+}
+
+---
+//invoke fun opareter
+{
+output1:moduleAgeID("sukku", 600, "sukku@gmail.com", "teacher", 79, "thimmayagunta"),
+output2:moduleAgeID("masthanram", 450, "masth@gmail.com", "army", 34, "vankatagiri"),
+output3:moduleAgeID("masthanram", 501, "masth@gmail.com", "army", 55, "tirupati")
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</route>
+			<route >
+				<ee:transform doc:name="Transform Message" doc:id="04915d6e-52d9-4b5d-9d31-84107b5b72df">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map(item,index)-> {
+    value: if(item.name == "masthan" and item.dep == "police") item.id
+        else if(item.id > 550 and item.age <50)item.name ++"," ++ item.dep
+        else 
+        item.email ++", " ++ item.city ++", " ++  index
+        
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</route>
+		</scatter-gather>
+		<logger level="INFO" doc:name="Logger" doc:id="4cd41b08-887d-4339-b6a7-4187c74bf3de" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="be9eedbf-d67e-4e3e-b12a-82b6d20aff44" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="false" logException="true" doc:name="On Error Continue" doc:id="d8015d47-6641-4070-a6e3-b75b73328d33" type="ANY">
+				<logger level="INFO" doc:name="Logger" doc:id="77e5abfe-c2d0-4e21-a436-9f1f8218f6df" message="#[payload]"/>
+			</on-error-continue>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c86cad13-aa4d-4b6e-87fd-ae5b2b6aed8c" type="EXPRESSION, STREAM_MAXIMUM_SIZE_EXCEEDED">
+				<logger level="INFO" doc:name="Logger" doc:id="45092f4b-70ea-4a93-972e-284a8c7b2acd" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
